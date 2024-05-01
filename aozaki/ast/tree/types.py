@@ -8,10 +8,15 @@ from aozaki.typing.type import Type
 from aozaki.ast.operator import Operator
 
 from ..typedef import TypedefItem
+from ..let_in_item import LetInItem
 
 @dataclass
 class AstInt:
     value: int
+
+@dataclass
+class AstTuple:
+    items: tuple[AstNode, ...]
 
 @dataclass
 class AstString:
@@ -28,6 +33,11 @@ class AstBinOp:
     op: Operator
 
     result_tp: Type
+
+@dataclass
+class AstLetIn:
+    items: tuple[LetInItem, ...]
+    where: AstNode
 
 @dataclass
 class AstVar:
@@ -54,6 +64,8 @@ AstNode: TypeAlias = (
     | AstVar
     | AstApplication
     | AstTypedef
+    | AstTuple
+    | AstLetIn
 )
 
 

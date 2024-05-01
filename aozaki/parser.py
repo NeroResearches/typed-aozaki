@@ -13,6 +13,7 @@ from .ast.algebra import AstAlgebra
 from .ast.tree import AstNode, AstTreeAlgebra
 from .ast.typedef import TypedefItem
 from .ast.operator import Operator
+from .ast.let_in_item import LetInItem
 
 from frozendict import frozendict
 from string import hexdigits
@@ -29,7 +30,7 @@ kw = lambda f: memo(seq(ws, sym(f), break_char))
 tp = lambda s: tp(s)
 
 name_start = alt(letter, sym('_'))
-name_rest = alt(name_start, one_of("'!?"))
+name_rest = alt(name_start, digit, one_of("'!?"))
 comma = skip(',')
 
 dquote = sym('"')
@@ -183,7 +184,7 @@ typedef_item = seq(
 typedef = seq(
     kw('type'),
     group(some(typedef_item)),
-    skip('in'),
+    kw('in'),
     expr,
     to_alg(lambda alg, items, where: alg.typedef(items, where))
 )
@@ -201,6 +202,8 @@ factor = alt(
 )
 mkbop = lambda op: to_alg(lambda alg, lhs, rhs: alg.binary(lhs, rhs, op))
 
+pat = tok(name)
+
 dot_op = lambda s: dot_op(s)
 dot_op = left(alt(
     seq(dot_op, skip('.'), name, to_alg(lambda alg, lhs, rhs: alg.binary(lhs, alg.string(rhs), Operator.DOT))),
@@ -213,7 +216,29 @@ application = seq(
     group(list_of(dot_op, some(space))),
     to_alg(lambda alg, what, args: alg.application(what, args))
 )
+
+let_in_item_rhs_type = alt(
+    seq(skip(':'), tp),
+    to(lambda: Unknown())
+)
+let_in_item = seq(
+    pat,
+    let_in_item_rhs_type,
+    skip('='),
+    expr,
+    skip(';'),
+    to(lambda p, rhs_tp, val: LetInItem(p, rhs_tp, val))
+)
+let_in = seq(
+    kw('let'),
+    group(some(let_in_item)),
+    kw('in'),
+    expr,
+    to_alg(lambda alg, items, where: alg.let_in(items, where))
+)
+
 special = alt(
+    let_in,
     application,
     dot_op,
 )
@@ -252,7 +277,7 @@ def parse(
     parser: Callable[[State], State] | None = None,
 ) -> Repr:
     if parser is None:
-        parser = expr
+        parser = let_in
 
     state = State(source, 0, True, (), {
         'pos': 0,

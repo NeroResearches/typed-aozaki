@@ -2,6 +2,7 @@ from aozaki.ast.algebra import AstAlgebra
 from aozaki.ast.operator import Operator
 from aozaki.typing.unknown import Unknown
 from aozaki.ast.typedef import TypedefItem
+from aozaki.ast.let_in_item import LetInItem
 
 from .types import (
     AstNode,
@@ -12,6 +13,7 @@ from .types import (
     AstApplication,
     AstVar,
     AstTypedef,
+    AstLetIn,
 )
 
 class AstTreeAlgebra(AstAlgebra[AstNode]):
@@ -29,6 +31,9 @@ class AstTreeAlgebra(AstAlgebra[AstNode]):
 
     def application(self, what: AstNode, args: tuple[AstNode, ...]) -> AstNode:
         return AstApplication(what, args, Unknown())
+
+    def let_in(self, items: tuple[LetInItem, ...], where: AstNode) -> AstNode:
+        return AstLetIn(items, where)
 
     def binary(self, lhs: AstNode, rhs: AstNode, operator: Operator) -> AstNode:
         return AstBinOp(
