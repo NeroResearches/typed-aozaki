@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import TypeAlias
 from dataclasses import dataclass
+from frozendict import frozendict
 
 from aozaki.typing.type import Type
 from aozaki.ast.operator import Operator
+
+from ..typedef import TypedefItem
 
 @dataclass
 class AstInt:
@@ -37,6 +40,11 @@ class AstApplication:
     
     result_tp: Type
 
+@dataclass
+class AstTypedef:
+    items: tuple[TypedefItem, ...]
+    where: AstNode
+
 AstNode: TypeAlias = (
     Operator
     | AstInt
@@ -45,6 +53,7 @@ AstNode: TypeAlias = (
     | AstBinOp
     | AstVar
     | AstApplication
+    | AstTypedef
 )
 
 

@@ -5,7 +5,7 @@ class Operator(StrEnum):
     SUB = "-"
     MUL = "*"
     DIV = "/"
-    ATTR = "."
+    DOT = "."
     APPLY = "$"
 
 

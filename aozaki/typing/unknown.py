@@ -4,6 +4,10 @@ from dataclasses import dataclass
 class Unknown:
     ...
 
+@dataclass
+class UnresolvedName:
+    name: str
 
-__all__ = ["Unknown"]
+
+__all__ = ["Unknown", "UnresolvedName"]
 

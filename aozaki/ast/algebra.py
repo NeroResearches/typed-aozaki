@@ -1,6 +1,7 @@
 from typing import Protocol, TypeVar
 
 from .operator import Operator
+from .typedef import TypedefItem
 
 T = TypeVar("T")
 
@@ -18,6 +19,16 @@ class AstAlgebra(Protocol[T]):
         ...
 
     def var(self, name: str) -> T:
+        ...
+
+    def application(self, what: T, args: tuple[T, ...]) -> T:
+        ...
+
+    def typedef(
+        self,
+        items: tuple[TypedefItem, ...],
+        where: T,
+    ) -> T: 
         ...
 
 
